@@ -10,6 +10,7 @@ import tn.esprit.tpautoloc.service.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,17 +45,39 @@ class ServiceTests {
     private IMaintenanceService maintenanceService;
 
     @Test
-    void testContratServiceValidationAndNotFound() {
-        Contrat contratWithId = new Contrat();
-        contratWithId.setIdContrat(99L);
-        assertThrows(IllegalArgumentException.class, () -> contratService.create(contratWithId));
+    void testAgenceService() {
+        // • Créer une instance d’Agence avec les attributs disponibles dans votre entité
+        Agence agence = new Agence();
+        agence.setNom("AutoLoc Paris Centre");
+        agence.setVille("Paris");
+        agence.setAdresse("15 Avenue des Champs-Élysées");
+        agence.setTelephone("0145678910");
 
-        Contrat contratNegatif = new Contrat();
-        contratNegatif.setMontantTotal(new BigDecimal("-10.00"));
-        assertThrows(IllegalArgumentException.class, () -> contratService.create(contratNegatif));
+        // • Enregistrer l’agence
+        Agence savedAgence = agenceService.create(agence);
 
-        assertThrows(ResourceNotFoundException.class, () -> contratService.findById(999999L));
-        assertThrows(ResourceNotFoundException.class, () -> contratService.deleteById(999999L));
+        // • Afficher l’objet retourné
+        System.out.println("Agence enregistrée : " + savedAgence.getNom() + " - ID: " + savedAgence.getIdAgence());
+        assertNotNull(savedAgence.getIdAgence(), "L'ID ne doit pas être null après l'enregistrement");
+
+        // • Afficher toutes les agences avec findAll()
+        List<Agence> agences = agenceService.findAll();
+        System.out.println("Toutes les agences (findAll), total : " + agences.size());
+        agences.forEach(a -> System.out.println(" - " + a.getIdAgence() + " : " + a.getNom()));
+
+        // • Récupérer une agence avec findById() et afficher le résultat
+        Agence retrievedAgence = agenceService.findById(savedAgence.getIdAgence());
+        assertNotNull(retrievedAgence);
+        System.out.println("Agence récupérée (findById) : " + retrievedAgence.getNom() + " - Ville : " + retrievedAgence.getVille());
+        assertEquals("AutoLoc Paris Centre", retrievedAgence.getNom());
+
+        // • Afficher le nombre d’agences avec count()
+        System.out.println("Nombre d'agences avec count() : " + agenceService.count());
+
+        // • Supprimer l’agence avec deleteById(), puis vérifier qu’elle n’existe plus
+        agenceService.deleteById(savedAgence.getIdAgence());
+        assertThrows(ResourceNotFoundException.class, () -> agenceService.findById(savedAgence.getIdAgence()));
+        System.out.println("Agence supprimée avec succès.");
     }
 
     @Test

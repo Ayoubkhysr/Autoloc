@@ -56,4 +56,9 @@ public class AgenceServiceImpl implements IAgenceService {
         }
         agenceRepository.deleteById(id);
     }
+
+    @Override
+    public long count() {
+        return agenceRepository.count();
+    }
 }
