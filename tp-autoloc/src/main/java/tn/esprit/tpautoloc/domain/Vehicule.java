@@ -40,6 +40,6 @@ public class Vehicule {
     @OneToMany(mappedBy = "vehicule")
     private List<Reservation> reservations;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Equipement> equipements;
 }
