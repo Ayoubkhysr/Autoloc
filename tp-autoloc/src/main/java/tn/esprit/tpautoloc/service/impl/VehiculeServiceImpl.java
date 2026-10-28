@@ -61,4 +61,14 @@ public class VehiculeServiceImpl implements IVehiculeService {
         }
         vehiculeRepository.deleteById(id);
     }
+
+    @Override
+    public long count() {
+        return vehiculeRepository.count();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return vehiculeRepository.existsById(id);
+    }
 }

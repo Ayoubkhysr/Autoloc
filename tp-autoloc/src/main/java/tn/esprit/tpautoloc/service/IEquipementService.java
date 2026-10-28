@@ -9,4 +9,6 @@ public interface IEquipementService {
     List<Equipement> findAll();
     Equipement update(Long id, Equipement equipement);
     void deleteById(Long id);
+    long count();
+    boolean existsById(Long id);
 }

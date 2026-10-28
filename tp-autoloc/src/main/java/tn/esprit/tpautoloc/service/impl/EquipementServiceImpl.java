@@ -53,4 +53,14 @@ public class EquipementServiceImpl implements IEquipementService {
         }
         equipementRepository.deleteById(id);
     }
+
+    @Override
+    public long count() {
+        return equipementRepository.count();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return equipementRepository.existsById(id);
+    }
 }

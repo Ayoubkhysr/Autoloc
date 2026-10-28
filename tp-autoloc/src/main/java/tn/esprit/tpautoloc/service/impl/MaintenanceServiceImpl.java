@@ -56,4 +56,14 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
         }
         maintenanceRepository.deleteById(id);
     }
+
+    @Override
+    public long count() {
+        return maintenanceRepository.count();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return maintenanceRepository.existsById(id);
+    }
 }

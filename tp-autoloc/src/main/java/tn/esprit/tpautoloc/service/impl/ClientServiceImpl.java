@@ -64,4 +64,14 @@ public class ClientServiceImpl implements IClientService {
         }
         clientRepository.deleteById(id);
     }
+
+    @Override
+    public long count() {
+        return clientRepository.count();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return clientRepository.existsById(id);
+    }
 }

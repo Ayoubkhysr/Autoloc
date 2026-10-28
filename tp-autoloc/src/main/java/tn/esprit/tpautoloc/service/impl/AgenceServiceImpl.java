@@ -61,4 +61,9 @@ public class AgenceServiceImpl implements IAgenceService {
     public long count() {
         return agenceRepository.count();
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return agenceRepository.existsById(id);
+    }
 }
