@@ -1,0 +1,487 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "AutoLoc API Collection",
+    "description": "Collection complète de tests pour l'API REST AutoLoc (Atelier 5)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "contratId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Contrats",
+      "item": [
+        {
+          "name": "Lister les contrats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consulter un contrat inexistant (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats", "9999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Créer un contrat (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dateSignature\": \"2026-11-02\",\n    \"montantTotal\": 480.00,\n    \"valide\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.idContrat) {",
+                  "    pm.environment.set(\"contratId\", jsonData.idContrat);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Créer un contrat avec un identifiant (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"idContrat\": 5,\n    \"dateSignature\": \"2026-11-02\",\n    \"montantTotal\": 480.00,\n    \"valide\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Créer un contrat avec ses paiements (Cascade)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dateSignature\": \"2026-11-02\",\n    \"montantTotal\": 480.00,\n    \"valide\": true,\n    \"paiements\": [\n        {\n            \"montant\": 150.00,\n            \"datePaiement\": \"2026-11-02\",\n            \"modePaiement\": \"CARTE\"\n        },\n        {\n            \"montant\": 330.00,\n            \"datePaiement\": \"2026-11-06\",\n            \"modePaiement\": \"VIREMENT\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modifier un contrat (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dateSignature\": \"2026-11-02\",\n    \"montantTotal\": 520.00,\n    \"valide\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats/{{contratId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats", "{{contratId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Supprimer un contrat (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contrats/{{contratId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contrats", "{{contratId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Paiements",
+      "item": [
+        {
+          "name": "Lister les paiements (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/paiements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paiements"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consulter un paiement inexistant (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/paiements/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paiements", "9999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Créer un paiement direct (Refusé 405)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"montant\": 100.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/paiements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paiements"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 405 Method Not Allowed\", function () {",
+                  "    pm.response.to.have.status(405);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Agences",
+      "item": [
+        {
+          "name": "Lister les agences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/agences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "agences"]
+            }
+          }
+        },
+        {
+          "name": "Créer une agence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nom\": \"AutoLoc Tunis Centre\",\n    \"ville\": \"Tunis\",\n    \"adresse\": \"Avenue Habib Bourguiba\",\n    \"telephone\": \"71000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/agences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "agences"]
+            }
+          }
+        },
+        {
+          "name": "Créer une agence sans nom (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ville\": \"Tunis\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/agences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "agences"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicules",
+      "item": [
+        {
+          "name": "Lister les véhicules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicules"]
+            }
+          }
+        },
+        {
+          "name": "Créer un véhicule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"immatriculation\": \"123-TN-456\",\n    \"marque\": \"Volkswagen\",\n    \"modele\": \"Golf 8\",\n    \"categorie\": \"BERLINE\",\n    \"tarifJournalier\": 85.00,\n    \"statut\": \"DISPONIBLE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicules"]
+            }
+          }
+        },
+        {
+          "name": "Créer un véhicule avec tarif négatif (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"immatriculation\": \"999-TN-999\",\n    \"tarifJournalier\": -50.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicules",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicules"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "Lister les clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            }
+          }
+        },
+        {
+          "name": "Créer un client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nom\": \"Ben Mahmoud\",\n    \"prenom\": \"Sami\",\n    \"email\": \"sami.bm@gmail.com\",\n    \"telephone\": \"98123456\",\n    \"numPermis\": \"PERM-9876\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clients"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
