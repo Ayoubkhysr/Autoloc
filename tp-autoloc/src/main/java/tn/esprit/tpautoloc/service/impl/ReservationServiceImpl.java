@@ -1,18 +1,25 @@
 package tn.esprit.tpautoloc.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tn.esprit.tpautoloc.domain.Client;
 import tn.esprit.tpautoloc.domain.Reservation;
+import tn.esprit.tpautoloc.domain.enums.StatutReservation;
 import tn.esprit.tpautoloc.exception.ResourceNotFoundException;
+import tn.esprit.tpautoloc.observer.ReservationSubject;
 import tn.esprit.tpautoloc.repository.IReservationRepository;
 import tn.esprit.tpautoloc.service.IReservationService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements IReservationService {
 
     private final IReservationRepository reservationRepository;
+    private final ReservationSubject reservationSubject;
 
     @Override
     public Reservation create(Reservation reservation) {
@@ -57,5 +64,49 @@ public class ReservationServiceImpl implements IReservationService {
             throw new ResourceNotFoundException("Reservation", id);
         }
         reservationRepository.deleteById(id);
+    }
+
+    @Override
+    public long count() {
+        return reservationRepository.count();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return reservationRepository.existsById(id);
+    }
+
+    /**
+     * Crée une réservation et notifie tous les observateurs (Pattern Observer).
+     */
+    @Override
+    public Reservation creerReservation(Client client) {
+        Reservation reservation = new Reservation();
+        reservation.setClient(client);
+        reservation.setDateDebut(LocalDate.now());
+        reservation.setDateFin(LocalDate.now().plusDays(3));
+        reservation.setStatut(StatutReservation.CONFIRMEE);
+
+        Reservation saved = reservationRepository.save(reservation);
+
+        // Déclenche le process métier via le pattern Observer
+        reservationSubject.notifierConfirmation(saved);
+        return saved;
+    }
+
+    /**
+     * Annule une réservation existante et notifie tous les observateurs (Pattern Observer).
+     */
+    @Override
+    public Reservation annulerReservation(Reservation reservation) {
+        reservation.setStatut(StatutReservation.ANNULEE);
+        String clientEmail = (reservation.getClient() != null) ? reservation.getClient().getEmail() : "inconnu";
+        log.info("Reservation #{} annulée pour le client {}", reservation.getIdReservation(), clientEmail);
+
+        Reservation updated = reservationRepository.save(reservation);
+
+        // Déclenche le process métier via le pattern Observer
+        reservationSubject.notifierAnnulation(updated);
+        return updated;
     }
 }
