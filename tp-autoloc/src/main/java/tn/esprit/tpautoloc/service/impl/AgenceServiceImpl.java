@@ -3,16 +3,21 @@ package tn.esprit.tpautoloc.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.tpautoloc.domain.Agence;
 import tn.esprit.tpautoloc.exception.ResourceNotFoundException;
 import tn.esprit.tpautoloc.repository.IAgenceRepository;
 import tn.esprit.tpautoloc.service.IAgenceService;
+import tn.esprit.tpautoloc.web.dto.AgenceDTO;
+import tn.esprit.tpautoloc.web.mapper.AgenceMapper;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AgenceServiceImpl implements IAgenceService {
 
     private final IAgenceRepository agenceRepository;
+    private final AgenceMapper agenceMapper;
 
     @Override
     public Agence create(Agence agence) {
@@ -26,12 +31,14 @@ public class AgenceServiceImpl implements IAgenceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Agence findById(Long id) {
         return agenceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Agence", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Agence introuvable", id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Agence> findAll() {
         return agenceRepository.findAll();
     }
@@ -52,18 +59,42 @@ public class AgenceServiceImpl implements IAgenceService {
     @Override
     public void deleteById(Long id) {
         if (!agenceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Agence", id);
+            throw new ResourceNotFoundException("Agence introuvable", id);
         }
         agenceRepository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long count() {
         return agenceRepository.count();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(Long id) {
         return agenceRepository.existsById(id);
+    }
+
+    // Atelier 7 DTO
+    @Override
+    public AgenceDTO creer(AgenceDTO dto) {
+        Agence agence = agenceMapper.toEntity(dto);
+        Agence saved = agenceRepository.save(agence);
+        return agenceMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AgenceDTO findByIdDto(Long id) {
+        return agenceMapper.toDto(findById(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AgenceDTO> findAllDto() {
+        return agenceRepository.findAll().stream()
+                .map(agenceMapper::toDto)
+                .toList();
     }
 }

@@ -2,6 +2,7 @@ package tn.esprit.tpautoloc.service;
 
 import java.util.List;
 import tn.esprit.tpautoloc.domain.Client;
+import tn.esprit.tpautoloc.web.dto.ClientDTO;
 
 public interface IClientService {
     Client create(Client client);
@@ -11,4 +12,9 @@ public interface IClientService {
     void deleteById(Long id);
     long count();
     boolean existsById(Long id);
+
+    // Atelier 7 : DTO
+    ClientDTO creer(ClientDTO dto);
+    ClientDTO findByIdDto(Long id);
+    List<ClientDTO> findAllDto();
 }

@@ -1,6 +1,8 @@
 package tn.esprit.tpautoloc.web.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -8,6 +10,7 @@ import tn.esprit.tpautoloc.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,5 +35,13 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("horodatage", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
         return body;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> erreurs = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(err ->
+                erreurs.put(err.getField(), err.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(erreurs);
     }
 }
