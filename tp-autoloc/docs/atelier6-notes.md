@@ -76,3 +76,22 @@ Le principe violé est le **Single Responsibility Principle (SRP)** :
 | **Strategy** | Calcul interchangeable du tarif (Standard, Weekend, Longue durée). | **OCP** (extensibilité des tarifs), **SRP** (isolation du calcul). |
 | **Factory Method** | Instanciation et résolution dynamique des stratégies et des observateurs. | **DIP** (découplage du client vis-à-vis des classes concrètes). |
 | **Observer** | Déclenchement automatique des notifications métier lors du cycle de vie des réservations. | **SRP** (découplage notification / métier), **OCP** (nouveaux canaux sans modification). |
+
+---
+
+### 6. Partie 5 : Tests et validation
+
+#### 1. Tests Observer (`ReservationServiceTest`)
+- Vérification de l'émission des logs de notification par email (`[EMAIL] Confirmation envoyee...`) et par SMS (`[SMS] Confirmation envoyee...`) lors de la création d'une réservation.
+- Vérification de l'émission des logs d'annulation (`[EMAIL] Annulation notifiee...`) et SMS lors de l'annulation d'une réservation.
+
+#### 2. Tests unitaires de la Factory (`TarificationStrategyFactoryTest`)
+Conforme aux spécifications des pages 12 et 13 du sujet de TP, les tests unitaires isolés (avec `@BeforeEach setUp()`) couvrent l'ensemble des branches conditionnelles :
+
+| Test | Durée | Jour début | Branche testée | Résultat attendu | Statut |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| `doitRetournerLongueDureePour7JoursOuPlus` | 7 j | Mercredi (2024-01-01) | `jours >= 7` | `LONGUE_DUREE` (`TarifLongueDureeStrategy`) | **VALIDÉ** |
+| `doitRetournerLongueDureePourExactement7Jours` | 7 j (borne) | Mercredi (2024-05-01) | `jours >= 7 (limite)` | `LONGUE_DUREE` (`TarifLongueDureeStrategy`) | **VALIDÉ** |
+| `doitRetournerWeekendPourCourtSejourVendredi` | 2 j | Vendredi (2024-03-08) | `jours <= 3 && weekend` | `WEEKEND` (`TarifWeekendStrategy`) | **VALIDÉ** |
+| `doitRetournerStandardPourMoyenneDuree` | 4 j | Lundi (2024-03-04) | `fallback` | `STANDARD` (`TarifStandardStrategy`) | **VALIDÉ** |
+
